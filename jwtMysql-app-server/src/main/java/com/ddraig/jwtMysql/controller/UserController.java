@@ -1,28 +1,36 @@
 package com.ddraig.jwtMysql.controller;
 
-import com.ddraig.jwtMysql.entity.User;
-import com.ddraig.jwtMysql.exception.ResourceNotFoundException;
-import com.ddraig.jwtMysql.model.*;
-import com.ddraig.jwtMysql.repository.PollRepository;
-import com.ddraig.jwtMysql.repository.UserRepository;
-import com.ddraig.jwtMysql.repository.VoteRepository;
-import com.ddraig.jwtMysql.security.CurrentUser;
-import com.ddraig.jwtMysql.security.UserPrincipal;
-import com.ddraig.jwtMysql.service.PollService;
-import com.ddraig.jwtMysql.util.AppConstants;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ddraig.jwtMysql.entity.User;
+import com.ddraig.jwtMysql.exception.ResourceNotFoundException;
+import com.ddraig.jwtMysql.model.PagedResponse;
+import com.ddraig.jwtMysql.model.PollResponse;
+import com.ddraig.jwtMysql.model.UserIdentityAvailability;
+import com.ddraig.jwtMysql.model.UserProfile;
+import com.ddraig.jwtMysql.model.UserSummary;
+import com.ddraig.jwtMysql.repository.PollRepository;
+import com.ddraig.jwtMysql.repository.VoteRepository;
+import com.ddraig.jwtMysql.security.CurrentUser;
+import com.ddraig.jwtMysql.security.UserPrincipal;
+import com.ddraig.jwtMysql.service.PollService;
+import com.ddraig.jwtMysql.service.UserService;
+import com.ddraig.jwtMysql.util.AppConstants;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private PollRepository pollRepository;
@@ -44,19 +52,19 @@ public class UserController {
 
     @GetMapping("/user/checkUsernameAvailability")
     public UserIdentityAvailability checkUsernameAvailability(@RequestParam(value = "username") String username) {
-        Boolean isAvailable = !userRepository.existsByUsername(username);
+        Boolean isAvailable = !userService.existsByUsername(username);
         return new UserIdentityAvailability(isAvailable);
     }
 
     @GetMapping("/user/checkEmailAvailability")
     public UserIdentityAvailability checkEmailAvailability(@RequestParam(value = "email") String email) {
-        Boolean isAvailable = !userRepository.existsByEmail(email);
+        Boolean isAvailable = !userService.existsByEmail(email);
         return new UserIdentityAvailability(isAvailable);
     }
 
     @GetMapping("/users/{username}")
     public UserProfile getUserProfile(@PathVariable(value = "username") String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userService.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
         long pollCount = pollRepository.countByCreatedBy(user.getId());

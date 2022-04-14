@@ -1,16 +1,9 @@
 package com.ddraig.jwtMysql.controller;
 
-import com.ddraig.jwtMysql.entity.Role;
-import com.ddraig.jwtMysql.entity.RoleName;
-import com.ddraig.jwtMysql.entity.User;
-import com.ddraig.jwtMysql.exception.AppException;
-import com.ddraig.jwtMysql.model.ApiResponse;
-import com.ddraig.jwtMysql.model.JwtAuthenticationResponse;
-import com.ddraig.jwtMysql.model.LoginRequest;
-import com.ddraig.jwtMysql.model.SignUpRequest;
-import com.ddraig.jwtMysql.repository.RoleRepository;
-import com.ddraig.jwtMysql.repository.UserRepository;
-import com.ddraig.jwtMysql.security.JwtTokenProvider;
+import java.net.URI;
+import java.util.Collections;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,9 +19,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.Collections;
+import com.ddraig.jwtMysql.entity.Role;
+import com.ddraig.jwtMysql.entity.RoleName;
+import com.ddraig.jwtMysql.entity.User;
+import com.ddraig.jwtMysql.exception.AppException;
+import com.ddraig.jwtMysql.model.ApiResponse;
+import com.ddraig.jwtMysql.model.JwtAuthenticationResponse;
+import com.ddraig.jwtMysql.model.LoginRequest;
+import com.ddraig.jwtMysql.model.SignUpRequest;
+import com.ddraig.jwtMysql.security.JwtTokenProvider;
+import com.ddraig.jwtMysql.service.RoleService;
+import com.ddraig.jwtMysql.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,13 +39,13 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    UserService userService;
+    
+    @Autowired
+    RoleService roleService;
 
     @Autowired
     JwtTokenProvider tokenProvider;
@@ -67,12 +68,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if(userService.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity<Object>(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if(userService.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity<Object>(new ApiResponse(false, "Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
@@ -83,11 +84,11 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Set role user - you have enter input role in signUpRequest and create user with other role
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+        Role userRole = roleService.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() -> new AppException("User Role not set."));
         user.setRoles(Collections.singleton(userRole));
 
-        User result = userRepository.save(user);
+        User result = userService.CreateUser(user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/users/{username}")
