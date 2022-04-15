@@ -3,7 +3,6 @@ package com.ddraig.jwtMysql.service;
 import com.ddraig.jwtMysql.entity.*;
 import com.ddraig.jwtMysql.exception.BadRequestException;
 import com.ddraig.jwtMysql.exception.ResourceNotFoundException;
-import com.ddraig.jwtMysql.model.PagedResponse;
 import com.ddraig.jwtMysql.model.PollRequest;
 import com.ddraig.jwtMysql.model.PollResponse;
 import com.ddraig.jwtMysql.model.VoteRequest;
@@ -13,6 +12,7 @@ import com.ddraig.jwtMysql.repository.VoteRepository;
 import com.ddraig.jwtMysql.security.UserPrincipal;
 import com.ddraig.jwtMysql.util.AppConstants;
 import com.ddraig.jwtMysql.util.ModelMapper;
+import com.ddraig.jwtMysql.util.PagedResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

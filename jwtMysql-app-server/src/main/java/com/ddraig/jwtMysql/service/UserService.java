@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ddraig.jwtMysql.entity.RoleName;
 import com.ddraig.jwtMysql.entity.User;
 import com.ddraig.jwtMysql.repository.UserRepository;
 
@@ -25,6 +26,10 @@ public class UserService {
 	
 	public Optional<User> findByUsername(String username) {
 		return userRepository.findByUsername(username);
+	}
+	
+	public List<User> findByRolesRoleName(RoleName rolename) {
+		return userRepository.findByRolesName(rolename);
 	}
 	
 	public List<User> findByIdIn(List<Long> userIds) {

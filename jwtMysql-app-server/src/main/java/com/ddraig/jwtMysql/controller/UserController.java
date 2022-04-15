@@ -1,8 +1,13 @@
 package com.ddraig.jwtMysql.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ddraig.jwtMysql.entity.RoleName;
 import com.ddraig.jwtMysql.entity.User;
 import com.ddraig.jwtMysql.exception.ResourceNotFoundException;
-import com.ddraig.jwtMysql.model.PagedResponse;
 import com.ddraig.jwtMysql.model.PollResponse;
 import com.ddraig.jwtMysql.model.UserIdentityAvailability;
 import com.ddraig.jwtMysql.model.UserProfile;
@@ -24,6 +29,8 @@ import com.ddraig.jwtMysql.security.UserPrincipal;
 import com.ddraig.jwtMysql.service.PollService;
 import com.ddraig.jwtMysql.service.UserService;
 import com.ddraig.jwtMysql.util.AppConstants;
+import com.ddraig.jwtMysql.util.PagedResponse;
+import com.ddraig.jwtMysql.util.RestResult;
 
 @RestController
 @RequestMapping("/api")
@@ -73,6 +80,19 @@ public class UserController {
         UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getCreatedAt(), pollCount, voteCount);
 
         return userProfile;
+    }
+    
+    @GetMapping("/users/role/{rolename}")
+    public ResponseEntity<RestResult> getUserByRoleName(@PathVariable(value = "rolename") RoleName rolename) {
+	    try {
+	    	List<User> users = userService.findByRolesRoleName(rolename);
+			RestResult result = new RestResult("0", "Successful", users);
+			logger.info("<======End call findByRolesRoleName method=========>");
+			return new ResponseEntity<>(result, HttpStatus.OK);
+	    } catch (DataAccessException ex) {
+			logger.error(ex.getLocalizedMessage());
+	        return null;
+	    }
     }
 
     @GetMapping("/users/{username}/polls")

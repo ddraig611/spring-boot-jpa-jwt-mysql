@@ -1,4 +1,4 @@
-package com.ddraig.jwtMysql.model;
+package com.ddraig.jwtMysql.util;
 
 import java.util.List;
 

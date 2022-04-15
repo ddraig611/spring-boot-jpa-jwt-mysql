@@ -3,6 +3,7 @@ package com.ddraig.jwtMysql.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.ddraig.jwtMysql.entity.RoleName;
 import com.ddraig.jwtMysql.entity.User;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     List<User> findByIdIn(List<Long> userIds);
+    
+    List<User> findByRolesName(RoleName roleName);
 
     Optional<User> findByUsername(String username);
 
