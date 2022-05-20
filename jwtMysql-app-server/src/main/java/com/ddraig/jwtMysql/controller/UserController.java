@@ -1,6 +1,7 @@
 package com.ddraig.jwtMysql.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,22 +12,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ddraig.jwtMysql.DTO.RoleDTO;
+import com.ddraig.jwtMysql.DTO.UserProfile;
+import com.ddraig.jwtMysql.entity.Role;
 import com.ddraig.jwtMysql.entity.RoleName;
 import com.ddraig.jwtMysql.entity.User;
 import com.ddraig.jwtMysql.exception.ResourceNotFoundException;
 import com.ddraig.jwtMysql.model.PollResponse;
 import com.ddraig.jwtMysql.model.UserIdentityAvailability;
-import com.ddraig.jwtMysql.model.UserProfile;
 import com.ddraig.jwtMysql.model.UserSummary;
 import com.ddraig.jwtMysql.repository.PollRepository;
 import com.ddraig.jwtMysql.repository.VoteRepository;
 import com.ddraig.jwtMysql.security.CurrentUser;
 import com.ddraig.jwtMysql.security.UserPrincipal;
 import com.ddraig.jwtMysql.service.PollService;
+import com.ddraig.jwtMysql.service.RoleService;
 import com.ddraig.jwtMysql.service.UserService;
 import com.ddraig.jwtMysql.util.AppConstants;
 import com.ddraig.jwtMysql.util.PagedResponse;
@@ -34,10 +41,14 @@ import com.ddraig.jwtMysql.util.RestResult;
 
 @RestController
 @RequestMapping("/api")
+@PreAuthorize("isAuthenticated()")
 public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private RoleService rollService;
 
     @Autowired
     private PollRepository pollRepository;
@@ -51,7 +62,9 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/user/me")
-    @PreAuthorize("hasRole('USER')")
+    //hasAnyAuthority('CUSTOMER', 'ADMIN')
+    //@PreAuthorize("isAuthenticated() || hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UserSummary userSummary = new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getName());
         return userSummary;

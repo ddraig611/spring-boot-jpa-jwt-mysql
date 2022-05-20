@@ -18,4 +18,14 @@ public class RoleService {
 	public Optional<Role> findByName(RoleName roleName) {
 		return roleRepository.findByName(roleName);
 	}
+	
+	public Optional<Role> findStrByName(String roleName) {
+		return roleRepository.findByName(roleName);
+	}
+	
+	public Role createRole(String roleName) {
+		Role role = new Role();
+		role.setName(RoleName.valueOf(roleName));
+		return roleRepository.save(role);
+	}
 }
